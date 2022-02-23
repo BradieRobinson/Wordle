@@ -40,6 +40,9 @@ def create_data_img(labels, counts, img_name, output_file):
     ticks = range(len(counts))
     plt.bar(ticks,counts, align='center')
     plt.xticks(ticks, labels)
+    plt.ylabel('Total Occurances') 
+    plt.xlabel('Letter') 
+    plt.title("Position: " + str(img_name))
     plt.savefig(output_file + str(img_name) + '.png')
     plt.clf()
 
