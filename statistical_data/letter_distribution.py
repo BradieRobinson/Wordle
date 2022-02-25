@@ -15,52 +15,46 @@ def main():
     answers_input = folder_root + "wordle-answers.csv"
     answers_output = "letter_distribution/answers/"
 
-    #read_data_frame(allowed_guesses_input, allowed_guesses_output)
+    read_data_frame(allowed_guesses_input, allowed_guesses_output)
     read_data_frame(answers_input, answers_output)
-
-    
 
 def read_data_frame(input_file, output_file):
     '''
     Read datafame and count occurance
     '''
     df = pd.read_csv(input_file)
-    #letter_freq = pd.DataFrame(columns=list(string.ascii_lowercase))
     letter_freq = pd.DataFrame({'Letters': list(string.ascii_lowercase)}, columns=['Letters'])
-    #print(letter_freq)
-
 
     overall_lst = []
-    for i in range(5):
+    for i in range(5): #loop all positions
         labels, counts = np.unique(df[str(i)].tolist(),return_counts=True)
         overall_lst.append(df[str(i)].tolist())
         create_data_img(labels, counts, i, output_file)
-        #print(i)
-        if len(list(string.ascii_lowercase)) != len(labels):
+
+        if len(list(string.ascii_lowercase)) != len(labels): #ensure that all columns contain all lowercase ascii letters
             labels, counts = check_list_size(list(string.ascii_lowercase), labels, counts)
+        letter_freq = append_to_dataframe(letter_freq, labels, counts, str(i))
 
-            #print(len(list(string.ascii_lowercase)) - len(labels))
-
-        #freq = pd.DataFrame({'Letters': labels, str(i) : counts}, columns=['Letters', str(i)])
-        #letter_freq = pd.merge(letter_freq, freq, on='Letters')
-        #print(letter_freq)
-
-        
-
-    labels, counts = np.unique(overall_lst,return_counts=True)    
+    labels, counts = np.unique(overall_lst,return_counts=True)   
+    letter_freq = append_to_dataframe(letter_freq, labels, counts, "overall")
     create_data_img(labels, counts, "overall", output_file)
 
+    letter_freq.to_csv(output_file + "frequency", index=False) #create csv of all occurances
+
+def append_to_dataframe(letter_freq, labels, counts, heading):
+    '''
+    Add each row into the old dataframe
+    '''
+    new_freq = pd.DataFrame({'Letters': labels, heading : counts}, columns=['Letters', heading])
+    return pd.merge(letter_freq, new_freq, on='Letters')
+
+
 def check_list_size(ascii, labels, counts):
-    # print("--")
-
-    #counts = np.pad(array=counts, pad_width=len(ascii)-len(labels))
-    # print(counts)
-    #labels.append(list(set(ascii) - set(labels)))
-    #labels= np.append(labels, list(set(ascii) - set(labels)))
-    #print(labels)
-
-    print(counts)
-    print(labels)
+    '''
+    If letter was not used in a position add to list with count as 0
+    '''
+    counts = np.pad(array=counts, pad_width=(0,len(ascii)-len(labels)))
+    labels= np.append(labels, list(set(ascii) - set(labels)))
     return labels, counts
 
 
